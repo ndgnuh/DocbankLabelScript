@@ -151,8 +151,10 @@ def worker(pdf_file, data_dir, output_dir):
 
             # plot annotation
             x0, y0, x1, y1 = line_bbox
-            x0, y0, x1, y1 = int(x0 * width / 1000), int(y0 * height / 1000), int(x1 * width / 1000), int(
-                y1 * height / 1000)
+            x0 = int(x0 * width / 1000)
+            y0 = int(y0 * height / 1000)
+            x1 = int(x1 * width / 1000)
+            y1 = int(y1 * height / 1000)
             anno_color = [0, 0, 0]
             for x in range(x0, x1 + 1):
                 for y in range(y0, y1 + 1):
@@ -167,6 +169,7 @@ def worker(pdf_file, data_dir, output_dir):
         anno_img = Image.fromarray(anno_img, mode='RGB')
         page_tokens.append((page_id, tokens, anno_img))
 
+        # Save image
         basename = os.path.splitext(pdf_file)[0]
         pdf_images[page_id].save(
             joinpath(output_dir, f'{basename}_{page_id:03d}_ori.jpg')
@@ -175,7 +178,7 @@ def worker(pdf_file, data_dir, output_dir):
             joinpath(output_dir, f'{basename}_{page_id:03d}_ann.jpg')
         )
 
-        # Write using pandas instead of this
+        # Save tokens annotation
         columns = ["token", "x1", "y1", "x2", "y2", "font"]
         anno_df = pd.DataFrame.from_records(tokens)
         anno_df = anno_df.rename(dict(enumerate(columns)), axis=1)
@@ -198,15 +201,24 @@ if __name__ == '__main__':
         type=str,
         help="The output directory where the output data will be written.",
     )
+    parser.add_argument(
+        "--num-procs",
+        default=1,
+        type=int,
+        help="Number of processes",
+    )
     args = parser.parse_args()
 
     pdf_files = list(os.listdir(args.data_dir))
     pdf_files = [t for t in pdf_files if t.endswith('.pdf')]
 
     # pool = multiprocessing.Pool(processes=1)
-    for pdf_file in tqdm(pdf_files):
-        # pool.apply_async(worker, (pdf_file, args.data_dir, args.output_dir))
-        worker(pdf_file, args.data_dir, args.output_dir)
+    inputs = [(file, args.data_dir, args.output_dir) for file in pdf_files]
+    with multiprocessing.Pool(args.num_procs) as p:
+        p.starmap(worker, inputs)
+    # for pdf_file in tqdm(pdf_files):
+    #     # pool.apply_async(worker, (pdf_file, args.data_dir, args.output_dir))
+    #     worker(pdf_file, args.data_dir, args.output_dir)
 
     # pool.close()
     # pool.join()
