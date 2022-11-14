@@ -4,3 +4,4 @@ pdf2image
 numpy
 Pillow
 tqdm
+pandas

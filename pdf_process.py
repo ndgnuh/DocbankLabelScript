@@ -2,13 +2,16 @@ import multiprocessing
 import argparse
 import pdfplumber
 import os
-from tqdm import tqdm
-from pdfminer.layout import LTChar, LTLine
 import re
-from collections import Counter
 import pdf2image
 import numpy as np
+import pandas as pd
+from tqdm import tqdm
+from pdfminer.layout import LTChar, LTLine
 from PIL import Image
+from collections import Counter
+
+joinpath = os.path.join
 
 
 def within_bbox(bbox_bound, bbox_in):
@@ -41,13 +44,13 @@ def worker(pdf_file, data_dir, output_dir):
     try:
         pdf_images = pdf2image.convert_from_path(
             os.path.join(data_dir, pdf_file))
-    except:
+    except Exception:
         return
 
     page_tokens = []
     try:
         pdf = pdfplumber.open(os.path.join(data_dir, pdf_file))
-    except:
+    except Exception:
         return
 
     for page_id in tqdm(range(len(pdf.pages))):
@@ -164,15 +167,22 @@ def worker(pdf_file, data_dir, output_dir):
         anno_img = Image.fromarray(anno_img, mode='RGB')
         page_tokens.append((page_id, tokens, anno_img))
 
+        basename = os.path.splitext(pdf_file)[0]
         pdf_images[page_id].save(
-            os.path.join(output_dir, pdf_file.replace('.pdf', '') + '_{}_ori.jpg'.format(str(page_id))))
+            joinpath(output_dir, f'{basename}_{page_id:03d}_ori.jpg')
+        )
         anno_img.save(
-            os.path.join(output_dir, pdf_file.replace('.pdf', '') + '_{}_ann.jpg'.format(str(page_id))))
-        with open(os.path.join(output_dir, pdf_file.replace('.pdf', '') + '_{}.txt'.format(str(page_id))),
-                  'w',
-                  encoding='utf8') as fp:
-            for token in tokens:
-                fp.write('\t'.join(token) + '\n')
+            joinpath(output_dir, f'{basename}_{page_id:03d}_ann.jpg')
+        )
+
+        # Write using pandas instead of this
+        columns = ["token", "x1", "y1", "x2", "y2", "font"]
+        anno_df = pd.DataFrame.from_records(tokens)
+        anno_df = anno_df.rename(dict(enumerate(columns)), axis=1)
+        anno_df.to_csv(
+            joinpath(output_dir, f'{basename}_{page_id:03d}.txt'),
+            index=False
+        )
 
 
 if __name__ == '__main__':
