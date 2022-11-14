@@ -1,0 +1,6 @@
+pdfplumber
+pdfminer
+pdf2image
+numpy
+Pillow
+tqdm
