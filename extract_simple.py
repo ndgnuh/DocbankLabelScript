@@ -51,8 +51,7 @@ def extract(pdf_file):
     return pages, textss, boxess
 
 
-def main(input_dir="test_sample"):
-    output_dir = "outputs/something"
+def main(input_dir="test_sample", output_dir="outputs/something"):
 
     makedirs(output_dir, exist_ok=True)
 
@@ -77,7 +76,14 @@ def main(input_dir="test_sample"):
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input")
+    parser.add_argument("output")
+    args = parser.parse_args()
+
+    main(args.input, args.output)
 
 # output_dir = "test_output"
 # input_file = "/home/hung/Data/pdfs/vi/preparing-slides.pdf"
