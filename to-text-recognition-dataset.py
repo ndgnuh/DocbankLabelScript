@@ -80,5 +80,6 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("input")
     parser.add_argument("output")
+    args = parser.parse_args()
     # main("output-pdf-vn", "pdf-ocr-dataset")
     main(args.input, args.output)
