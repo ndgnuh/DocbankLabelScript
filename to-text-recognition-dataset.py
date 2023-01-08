@@ -76,4 +76,9 @@ def main(inputdir, outputdir):
 
 
 if __name__ == "__main__":
-    main("output-pdf-vn", "pdf-ocr-dataset")
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument("input")
+    parser.add_argument("output")
+    # main("output-pdf-vn", "pdf-ocr-dataset")
+    main(args.input, args.output)
