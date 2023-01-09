@@ -35,24 +35,37 @@ def extract(pdf_file):
         # Extracting images of the pages
         pixmap = page.get_pixmap()
         pixmap = pixmap_to_pilimage(pixmap)
-        pages.append(pixmap)
 
         # Extracting the texts
         width, height = pixmap.size
         texts = []
         boxes = []
+        skip = False
         for (x1, y1, x2, y2, word, _, _, _) in page.get_text("words"):
+            # tab stuffs, just skip the whole page
+            # it's likely a form anyway
+            if '.....' in word or '…' in word:
+                skip = True
+                break
+
+            # tolerable
+            if '---' in word or '___' in word:
+                continue
+
             box = normalize_bounding_box(x1, y1, x2, y2, width, height)
             boxes.append(box)
-            texts.append(word)
+            texts.append(word.replace('\t', ' ').strip())
 
+        if skip:
+            continue
+
+        pages.append(pixmap)
         textss.append(texts)
         boxess.append(boxes)
     return pages, textss, boxess
 
 
-def main(input_dir="test_sample"):
-    output_dir = "outputs/something"
+def main(input_dir="test_sample", output_dir="outputs/something"):
 
     makedirs(output_dir, exist_ok=True)
 
@@ -77,7 +90,14 @@ def main(input_dir="test_sample"):
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input")
+    parser.add_argument("output")
+    args = parser.parse_args()
+
+    main(args.input, args.output)
 
 # output_dir = "test_output"
 # input_file = "/home/hung/Data/pdfs/vi/preparing-slides.pdf"
