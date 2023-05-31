@@ -32,7 +32,10 @@ def main():
         for i, sample in enumerate(labelmes):
             name = extract.gen_suffix(basename, f"-{i:03d}")
             name = extract.replace_ext(name, ".json")
+            sample['imagePath'] = extract.replace_ext(name, ".png")
             data = json.dumps(sample, ensure_ascii=False, indent=4)
+            image_path = path.join(args.outputdir, sample['imagePath'])
+            outputs[i].image.save(image_path)
             output_path = path.join(args.outputdir, name)
             with open(output_path, "w", encoding='utf-8') as fp:
                 fp.write(data)
