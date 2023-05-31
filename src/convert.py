@@ -1,3 +1,4 @@
+from base64 import b64encode
 from io import BytesIO
 from PIL import Image
 
@@ -41,3 +42,8 @@ def pillow2bytes(image: Image) -> bytes:
     buffer = io.getvalue()
     io.close()
     return buffer
+
+
+def pillow2base64(image: Image) -> str:
+    """Chaining pillow2bytes and bytes2base64"""
+    return bytes2base64(pillow2bytes(image))

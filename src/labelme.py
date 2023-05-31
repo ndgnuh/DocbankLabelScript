@@ -41,6 +41,7 @@ def create_labelme_sample(page: Extracted) -> Dict:
     sample["imageHeight"] = page.image.height
     sample["imageWidth"] = page.image.width
     sample["imagePath"] = ""
+    sample["imageData"] = convert.pillow2base64(page.image)
     for box in page.boxes:
         shape = gen_labelme_rect('text', box)
         sample['shapes'].append(shape)

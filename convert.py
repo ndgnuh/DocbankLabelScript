@@ -1,3 +1,6 @@
+"""
+Convert a folder of PDF to a folder of LabelME samples
+"""
 #!/bin/env python3
 import json
 from io import BytesIO
