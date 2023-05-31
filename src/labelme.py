@@ -1,4 +1,9 @@
-def labelme_rect(label: str, box: list):
+from typing import Dict, List, Tuple
+from .structures import Extracted, Box
+from . import convert
+
+
+def gen_labelme_rect(label: str, box: Box) -> Dict:
     """Create a rect annotation in labelme format
 
     Args:
@@ -11,26 +16,32 @@ def labelme_rect(label: str, box: list):
     return {
         "label": label,
         "points": [[x1, y1], [x2, y2]],
-        "group_id": null,
+        "group_id": None,
         "description": "",
         "shape_type": "rectangle",
         "flags": {},
     }
 
 
-def create_labelme_sample(image, classes, boxes):
+def create_labelme_sample(page: Extracted) -> Dict:
     """Create a labelme formatted json dict from the inputs
 
     Args:
-        image:
-            A Pillow image, this will be stored in the sample as B64
-        classes:
-            List of text classes
-        boxes:
-            List of bounding box in (xyxy) format
+        page:
+            The information of extracted page
 
     Returns:
         sample:
-            The sample in labelme format.
+            A dict of sample data in labelme format.
     """
-    pass
+    sample = {}
+    sample["version"] = "5.2.1"
+    sample["flags"] = {}
+    sample["shapes"] = []
+    sample["imageHeight"] = page.image.height
+    sample["imageWidth"] = page.image.width
+    sample["imagePath"] = ""
+    for box in page.boxes:
+        shape = gen_labelme_rect('text', box)
+        sample['shapes'].append(shape)
+    return sample

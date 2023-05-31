@@ -1,6 +1,9 @@
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Annotated
 from PIL import Image
+
+Box = Tuple[int, int, int, int]
+Box.__doc__ = "Bounding box format x1 y1 x2 y2"
 
 
 @dataclass
@@ -18,4 +21,4 @@ class Extracted:
 
     image: Image
     texts: List[str]
-    boxes: List[Tuple[int, int, int, int]]
+    boxes: List[Box]

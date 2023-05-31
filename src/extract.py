@@ -39,3 +39,26 @@ def extract_pdf(pdfpath: str) -> List[Extracted]:
         ex = Extracted(image=image, texts=texts, boxes=boxes)
         outputs.append(ex)
     return outputs
+
+
+def gen_suffix(name: str, suffix: str) -> str:
+    """Helper function to create pretty suffix name
+
+    Args:
+        name:
+            The basename to prettify
+        suffix:
+            The suffix
+
+    Examples:
+        >>> name_suffix("sample.json", "-01")
+        sample-01.json
+    """
+    namepart, extpart = path.splitext(name)
+    return f"{namepart}{suffix}{extpart}"
+
+
+def replace_ext(filepath: str, ext: str) -> str:
+    """Replace file extension of file path"""
+    basename, _ = path.splitext(filepath)
+    return f"{basename}{ext}"
